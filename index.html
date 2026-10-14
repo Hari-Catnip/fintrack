@@ -1,0 +1,1528 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinTrack | Invoice & PO Management</title>
+
+<!-- SheetJS for Excel export -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    background: #f5f7fb;
+    color: #1e293b;
+}
+
+button, input, select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* LOGIN */
+
+#loginPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #101d3a, #234c79);
+}
+
+.login-card {
+    width: 390px;
+    background: white;
+    padding: 40px;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px #0003;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: 800;
+    color: #2359a6;
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    color: #718096;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.login-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 17px 0 8px;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #dce3ed;
+    border-radius: 8px;
+    outline: none;
+}
+
+.login-card input:focus {
+    border-color: #3478db;
+}
+
+.login-btn {
+    width: 100%;
+    background: #2865bd;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    margin-top: 25px;
+    font-weight: 700;
+}
+
+.login-btn:hover {
+    background: #174b98;
+}
+
+.login-error {
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: 12px;
+    display: none;
+}
+
+.demo-credentials {
+    background: #f0f5fc;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 22px;
+    font-size: 12px;
+    color: #53657e;
+    line-height: 1.8;
+}
+
+/* APPLICATION */
+
+#app {
+    display: none;
+    min-height: 100vh;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 245px;
+    background: #14233d;
+    color: white;
+    padding: 25px 17px;
+    z-index: 5;
+}
+
+.sidebar-logo {
+    font-size: 23px;
+    font-weight: 800;
+    padding: 8px 12px;
+    margin-bottom: 45px;
+}
+
+.sidebar-logo span {
+    color: #55a5ff;
+}
+
+.nav-label {
+    color: #8294ad;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    padding: 0 13px;
+    margin-bottom: 15px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px;
+    color: #c1cde0;
+    border-radius: 8px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.nav-item:hover, .nav-item.active {
+    background: #294c78;
+    color: white;
+}
+
+.sidebar-bottom {
+    position: absolute;
+    bottom: 25px;
+    left: 20px;
+    right: 20px;
+    border-top: 1px solid #34445e;
+    padding-top: 18px;
+    font-size: 12px;
+    color: #aab8cc;
+}
+
+.main {
+    margin-left: 245px;
+    min-height: 100vh;
+}
+
+.topbar {
+    background: white;
+    height: 76px;
+    padding: 0 35px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e8edf4;
+}
+
+.topbar h3 {
+    font-size: 18px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.avatar {
+    width: 37px;
+    height: 37px;
+    border-radius: 50%;
+    background: #e1edff;
+    color: #2865bd;
+    display: grid;
+    place-items: center;
+    font-weight: bold;
+}
+
+.content {
+    padding: 30px 35px;
+}
+
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.page-heading h1 {
+    font-size: 25px;
+    margin-bottom: 7px;
+}
+
+.page-heading p {
+    font-size: 13px;
+    color: #8491a5;
+}
+
+/* METRIC CARDS */
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.metric-card {
+    background: white;
+    border: 1px solid #edf0f5;
+    border-radius: 12px;
+    padding: 22px;
+}
+
+.metric-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #77849a;
+    font-size: 13px;
+}
+
+.metric-icon {
+    width: 39px;
+    height: 39px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 19px;
+}
+
+.blue { background: #e7f0ff; color: #2870d5; }
+.green { background: #e4f8ed; color: #169b5c; }
+.orange { background: #fff1df; color: #dc8a1c; }
+.purple { background: #f0eaff; color: #8655ce; }
+
+.metric-value {
+    font-size: 27px;
+    font-weight: 750;
+    margin-top: 15px;
+}
+
+.metric-note {
+    font-size: 12px;
+    color: #8c98aa;
+    margin-top: 7px;
+}
+
+/* DASHBOARD PANELS */
+
+.panel {
+    background: white;
+    border: 1px solid #edf0f5;
+    border-radius: 12px;
+    padding: 23px;
+    margin-bottom: 22px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.panel-header h3 {
+    font-size: 16px;
+}
+
+.panel-header small {
+    color: #8b98aa;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.bar-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 35px;
+    align-items: center;
+    gap: 12px;
+    margin: 17px 0;
+    font-size: 12px;
+}
+
+.bar-track {
+    height: 10px;
+    background: #edf1f7;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: #3479d3;
+}
+
+.status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    align-items: center;
+}
+
+.status-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.dot-green { background: #20b779; }
+.dot-orange { background: #efa43c; }
+.dot-red { background: #e56b6b; }
+
+/* TABLE */
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+th {
+    text-align: left;
+    padding: 14px 12px;
+    background: #f7f9fc;
+    color: #738198;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #eef1f5;
+}
+
+tr:hover td {
+    background: #fafcff;
+}
+
+.type-badge, .status-badge {
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.invoice-badge { background: #e9f1ff; color: #2766b7; }
+.po-badge { background: #f1eaff; color: #8051c0; }
+
+.approved { background: #e1f7eb; color: #138451; }
+.pending { background: #fff2dd; color: #bd7918; }
+.rejected { background: #ffe7e7; color: #c44949; }
+.paid { background: #e1f7eb; color: #138451; }
+.created { background: #e9f1ff; color: #2766b7; }
+
+/* REPORT FILTERS */
+
+.filters {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+    gap: 13px;
+    margin-bottom: 20px;
+}
+
+.filters input, .filters select {
+    padding: 11px 12px;
+    border: 1px solid #dfe5ed;
+    border-radius: 7px;
+    background: white;
+    color: #344054;
+    min-width: 0;
+    outline: none;
+}
+
+.filters input:focus, .filters select:focus {
+    border-color: #3479d3;
+}
+
+.btn {
+    border: none;
+    border-radius: 7px;
+    padding: 11px 17px;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.btn-primary {
+    background: #2865bd;
+    color: white;
+}
+
+.btn-primary:hover { background: #174b98; }
+
+.btn-green {
+    background: #138b58;
+    color: white;
+}
+
+.btn-outline {
+    border: 1px solid #d9e0e9;
+    background: white;
+    color: #45546a;
+}
+
+.btn-outline:hover { background: #f3f6fa; }
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.summary-box {
+    background: #f8faff;
+    border: 1px solid #e7edf7;
+    padding: 17px;
+    border-radius: 9px;
+}
+
+.summary-box small {
+    color: #7e8ba0;
+    font-size: 12px;
+}
+
+.summary-box h3 {
+    font-size: 22px;
+    margin-top: 8px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 17px;
+    color: #8290a4;
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.page-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.page-buttons button {
+    padding: 7px 11px;
+    border: 1px solid #dce3ed;
+    background: white;
+    border-radius: 5px;
+    color: #43536a;
+}
+
+.page-buttons button.active {
+    background: #2865bd;
+    color: white;
+    border-color: #2865bd;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.footer {
+    color: #9aa5b5;
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+}
+
+@media(max-width: 1050px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .filters { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width: 700px) {
+    .sidebar { width: 65px; padding: 15px 8px; }
+    .sidebar-logo { font-size: 0; padding: 10px 5px; }
+    .sidebar-logo span { font-size: 20px; }
+    .nav-label, .nav-item span, .sidebar-bottom { display: none; }
+    .nav-item { justify-content: center; padding: 15px 5px; }
+    .main { margin-left: 65px; }
+    .topbar { padding: 0 15px; }
+    .content { padding: 20px 13px; }
+    .metrics { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric-card { padding: 13px; }
+    .metric-value { font-size: 21px; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .filters { grid-template-columns: 1fr; }
+    .report-summary { grid-template-columns: 1fr; }
+    .page-heading h1 { font-size: 21px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+
+<div id="loginPage">
+    <div class="login-card">
+        <div class="brand">FinTrack.</div>
+        <p class="login-subtitle">
+            Invoice & Purchase Order Management Portal
+        </p>
+
+        <form id="loginForm">
+            <label>Username</label>
+            <input id="username" type="text"
+                   placeholder="Enter username" required>
+
+            <label>Password</label>
+            <input id="password" type="password"
+                   placeholder="Enter password" required>
+
+            <button class="login-btn" type="submit">Sign In →</button>
+        </form>
+
+        <p class="login-error" id="loginError">
+            Invalid username or password.
+        </p>
+
+        <div class="demo-credentials">
+            <strong>Training Credentials</strong><br>
+            Username: rpauser<br>
+            Password: RPA@123
+        </div>
+    </div>
+</div>
+
+
+<!-- MAIN APPLICATION -->
+
+<div id="app">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">Fin<span>Track.</span></div>
+
+        <div class="nav-label">MAIN MENU</div>
+
+        <div class="nav-item active" onclick="showPage('dashboard',this)">
+            <span>▦</span><span>Dashboard</span>
+        </div>
+
+        <div class="nav-item" onclick="showPage('reports',this)">
+            <span>▤</span><span>Reports</span>
+        </div>
+
+        <div class="sidebar-bottom">
+            IBM RPA Training Portal<br>
+            Version 1.0.0
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <h3 id="topTitle">Dashboard</h3>
+
+            <div class="user-info">
+                <div class="avatar">RA</div>
+                <div>
+                    <strong>RPA User</strong><br>
+                    <span style="color:#8995a8">Administrator</span>
+                </div>
+                <button class="btn btn-outline"
+                        onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+
+        <!-- DASHBOARD -->
+
+        <section id="dashboardPage" class="content">
+
+            <div class="page-heading">
+                <div>
+                    <h1>Dashboard Overview</h1>
+                    <p>Welcome back! Here's your financial document summary.</p>
+                </div>
+                <span id="currentDate" style="font-size:12px;color:#8190a5"></span>
+            </div>
+
+            <div class="metrics">
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        Total Invoices
+                        <div class="metric-icon blue">▤</div>
+                    </div>
+                    <div class="metric-value" id="totalInvoices">0</div>
+                    <div class="metric-note">Invoice documents</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        Total Purchase Orders
+                        <div class="metric-icon purple">▧</div>
+                    </div>
+                    <div class="metric-value" id="totalPOs">0</div>
+                    <div class="metric-note">Purchase order documents</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        Invoice Value
+                        <div class="metric-icon green">₹</div>
+                    </div>
+                    <div class="metric-value" id="invoiceValue">₹0</div>
+                    <div class="metric-note">Total invoice amount</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        PO Value
+                        <div class="metric-icon orange">₹</div>
+                    </div>
+                    <div class="metric-value" id="poValue">₹0</div>
+                    <div class="metric-note">Total PO amount</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        Pending Invoices
+                        <div class="metric-icon orange">◷</div>
+                    </div>
+                    <div class="metric-value" id="pendingInvoices">0</div>
+                    <div class="metric-note">Awaiting approval/payment</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        Approved Invoices
+                        <div class="metric-icon green">✓</div>
+                    </div>
+                    <div class="metric-value" id="approvedInvoices">0</div>
+                    <div class="metric-note">Approved documents</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        Paid Invoices
+                        <div class="metric-icon blue">₹</div>
+                    </div>
+                    <div class="metric-value" id="paidInvoices">0</div>
+                    <div class="metric-note">Payment completed</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        Total Documents
+                        <div class="metric-icon purple">▣</div>
+                    </div>
+                    <div class="metric-value" id="totalDocuments">0</div>
+                    <div class="metric-note">Invoices + POs</div>
+                </div>
+
+            </div>
+
+            <div class="dashboard-grid">
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>Document Distribution</h3>
+                        <small>By document type</small>
+                    </div>
+
+                    <div class="bar-row">
+                        <span>Invoices</span>
+                        <div class="bar-track">
+                            <div class="bar-fill" id="invoiceBar"></div>
+                        </div>
+                        <strong id="invoiceCountBar">0</strong>
+                    </div>
+
+                    <div class="bar-row">
+                        <span>Purchase Orders</span>
+                        <div class="bar-track">
+                            <div class="bar-fill" id="poBar"
+                                 style="background:#9870d7"></div>
+                        </div>
+                        <strong id="poCountBar">0</strong>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>Invoice Status Overview</h3>
+                        <small>Current status</small>
+                    </div>
+
+                    <div class="status-list">
+                        <div class="status-row">
+                            <div class="status-label">
+                                <span class="dot dot-green"></span> Paid
+                            </div>
+                            <strong id="statusPaid">0</strong>
+                        </div>
+
+                        <div class="status-row">
+                            <div class="status-label">
+                                <span class="dot dot-orange"></span> Pending
+                            </div>
+                            <strong id="statusPending">0</strong>
+                        </div>
+
+                        <div class="status-row">
+                            <div class="status-label">
+                                <span class="dot dot-red"></span> Rejected
+                            </div>
+                            <strong id="statusRejected">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>Recent Transactions</h3>
+                    <button class="btn btn-outline"
+                            onclick="showPage('reports')">
+                        View All →
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Document ID</th>
+                                <th>Type</th>
+                                <th>Vendor</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- REPORTS PAGE -->
+
+        <section id="reportsPage" class="content hidden">
+
+            <div class="page-heading">
+                <div>
+                    <h1>Reports & Analytics</h1>
+                    <p>Search, analyse and download invoice and PO records.</p>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-green" onclick="exportExcel()">
+                        ↓ Export Excel
+                    </button>
+                    <button class="btn btn-primary" onclick="exportCSV()">
+                        ↓ Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- REPORT SUMMARY -->
+
+            <div class="report-summary">
+                <div class="summary-box">
+                    <small>Filtered Documents</small>
+                    <h3 id="filteredCount">0</h3>
+                </div>
+
+                <div class="summary-box">
+                    <small>Total Filtered Amount</small>
+                    <h3 id="filteredAmount">₹0</h3>
+                </div>
+
+                <div class="summary-box">
+                    <small>Average Document Value</small>
+                    <h3 id="averageAmount">₹0</h3>
+                </div>
+            </div>
+
+            <!-- FILTERS -->
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>Filter Documents</h3>
+                    <button class="btn btn-outline"
+                            onclick="resetFilters()">Reset Filters</button>
+                </div>
+
+                <div class="filters">
+
+                    <input type="text" id="searchInput"
+                           placeholder="Search document / vendor..."
+                           oninput="applyFilters()">
+
+                    <select id="typeFilter" onchange="applyFilters()">
+                        <option value="All">All Documents</option>
+                        <option value="Invoice">Invoice</option>
+                        <option value="PO">Purchase Order</option>
+                    </select>
+
+                    <select id="statusFilter" onchange="applyFilters()">
+                        <option value="All">All Statuses</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Created">Created</option>
+                    </select>
+
+                    <select id="vendorFilter" onchange="applyFilters()">
+                        <option value="All">All Vendors</option>
+                    </select>
+
+                </div>
+
+                <div style="font-size:12px;color:#8290a4">
+                    Showing matching records from the static training dataset.
+                </div>
+            </div>
+
+            <!-- ANALYTICS -->
+
+            <div class="dashboard-grid">
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>Document Type Summary</h3>
+                    </div>
+                    <div id="typeAnalytics"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>Status-wise Summary</h3>
+                    </div>
+                    <div id="statusAnalytics" class="status-list"></div>
+                </div>
+
+            </div>
+
+            <!-- DATA TABLE -->
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>Invoice & PO Register</h3>
+                        <small>100 static training records</small>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-outline"
+                                onclick="exportExcel()">
+                            Excel
+                        </button>
+                        <button class="btn btn-outline"
+                                onclick="exportCSV()">
+                            CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Document ID</th>
+                                <th>Type</th>
+                                <th>Vendor Name</th>
+                                <th>Vendor Code</th>
+                                <th>Document Date</th>
+                                <th>Due Date</th>
+                                <th>Amount (₹)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="reportTable"></tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <span id="recordInfo">Showing 0 records</span>
+                    <div class="page-buttons" id="pagination"></div>
+                </div>
+
+            </div>
+
+            <div class="footer">
+                FinTrack Invoice & PO Management | IBM RPA Training Demo
+            </div>
+
+        </section>
+
+    </main>
+</div>
+
+
+<script>
+
+// ===========================================
+// 1. LOGIN
+// ===========================================
+
+const DEMO_USERNAME = "rpauser";
+const DEMO_PASSWORD = "RPA@123";
+
+document.getElementById("loginForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if(username === DEMO_USERNAME && password === DEMO_PASSWORD) {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        document.getElementById("loginError").style.display = "none";
+
+        initializeApplication();
+    } else {
+        document.getElementById("loginError").style.display = "block";
+    }
+});
+
+function logout() {
+    document.getElementById("app").style.display = "none";
+    document.getElementById("loginPage").style.display = "flex";
+    document.getElementById("loginForm").reset();
+    document.getElementById("password").value = "";
+}
+
+
+// ===========================================
+// 2. STATIC MASTER DATA
+// ===========================================
+
+const vendors = [
+    {name:"ABC Technologies",code:"V1001"},
+    {name:"Global Industrial Supplies",code:"V1002"},
+    {name:"Prime Components Ltd",code:"V1003"},
+    {name:"Techno Solutions",code:"V1004"},
+    {name:"Apex Manufacturing",code:"V1005"},
+    {name:"Sunrise Enterprises",code:"V1006"},
+    {name:"Reliable Systems",code:"V1007"},
+    {name:"Metro Distributors",code:"V1008"},
+    {name:"Innovatech Services",code:"V1009"},
+    {name:"Universal Engineering",code:"V1010"}
+];
+
+const records = [];
+
+const invoiceStatuses = ["Paid","Pending","Approved","Rejected"];
+const poStatuses = ["Created","Approved","Pending"];
+
+function addDays(date,days) {
+    const d = new Date(date);
+    d.setDate(d.getDate()+days);
+    return d.toISOString().slice(0,10);
+}
+
+function randomDate(index) {
+    const day = 1 + ((index * 7) % 28);
+    const month = 1 + (index % 9);
+    return `2026-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+}
+
+// Generate exactly 100 records
+
+for(let i=1; i<=100; i++) {
+
+    const isInvoice = i <= 60;
+    const vendor = vendors[(i-1)%vendors.length];
+
+    const amount = 15000 + ((i * 1379) % 185000);
+
+    const documentDate = randomDate(i);
+    const dueDate = addDays(documentDate,30);
+
+    const status = isInvoice
+        ? invoiceStatuses[(i-1)%invoiceStatuses.length]
+        : poStatuses[(i-1)%poStatuses.length];
+
+    records.push({
+        sno:i,
+        documentId: isInvoice
+            ? `INV-2026-${String(i).padStart(4,"0")}`
+            : `PO-2026-${String(i-60).padStart(4,"0")}`,
+
+        type: isInvoice ? "Invoice" : "PO",
+        vendor:vendor.name,
+        vendorCode:vendor.code,
+        documentDate:documentDate,
+        dueDate:dueDate,
+        amount:amount,
+        status:status
+    });
+}
+
+
+// ===========================================
+// 3. COMMON FUNCTIONS
+// ===========================================
+
+function money(value) {
+    return "₹" + Number(value).toLocaleString("en-IN");
+}
+
+function statusClass(status) {
+    return status.toLowerCase();
+}
+
+function typeBadge(type) {
+    return type === "Invoice"
+        ? '<span class="type-badge invoice-badge">Invoice</span>'
+        : '<span class="type-badge po-badge">Purchase Order</span>';
+}
+
+function statusBadge(status) {
+    return `<span class="status-badge ${statusClass(status)}">${status}</span>`;
+}
+
+function initializeApplication() {
+    document.getElementById("currentDate").innerText =
+        new Date().toLocaleDateString("en-IN", {
+            day:"2-digit",
+            month:"long",
+            year:"numeric"
+        });
+
+    populateVendorFilter();
+    updateDashboard();
+    applyFilters();
+}
+
+
+// ===========================================
+// 4. PAGE NAVIGATION
+// ===========================================
+
+function showPage(page, element) {
+
+    document.getElementById("dashboardPage").classList.add("hidden");
+    document.getElementById("reportsPage").classList.add("hidden");
+
+    document.getElementById(page+"Page").classList.remove("hidden");
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+        item.classList.remove("active");
+    });
+
+    if(element) {
+        element.classList.add("active");
+    } else {
+        const items = document.querySelectorAll(".nav-item");
+        items[page === "dashboard" ? 0 : 1].classList.add("active");
+    }
+
+    document.getElementById("topTitle").innerText =
+        page === "dashboard" ? "Dashboard" : "Reports";
+}
+
+
+// ===========================================
+// 5. DASHBOARD METRICS
+// ===========================================
+
+function updateDashboard() {
+
+    const invoices = records.filter(r => r.type === "Invoice");
+    const pos = records.filter(r => r.type === "PO");
+
+    const sum = arr => arr.reduce((total,r) => total+r.amount,0);
+
+    const pending = invoices.filter(r => r.status === "Pending");
+    const approved = invoices.filter(r => r.status === "Approved");
+    const paid = invoices.filter(r => r.status === "Paid");
+    const rejected = invoices.filter(r => r.status === "Rejected");
+
+    document.getElementById("totalInvoices").innerText = invoices.length;
+    document.getElementById("totalPOs").innerText = pos.length;
+
+    document.getElementById("invoiceValue").innerText = money(sum(invoices));
+    document.getElementById("poValue").innerText = money(sum(pos));
+
+    document.getElementById("pendingInvoices").innerText = pending.length;
+    document.getElementById("approvedInvoices").innerText = approved.length;
+    document.getElementById("paidInvoices").innerText = paid.length;
+    document.getElementById("totalDocuments").innerText = records.length;
+
+    document.getElementById("statusPaid").innerText = paid.length;
+    document.getElementById("statusPending").innerText = pending.length;
+    document.getElementById("statusRejected").innerText = rejected.length;
+
+    document.getElementById("invoiceCountBar").innerText = invoices.length;
+    document.getElementById("poCountBar").innerText = pos.length;
+
+    document.getElementById("invoiceBar").style.width =
+        invoices.length / records.length * 100 + "%";
+
+    document.getElementById("poBar").style.width =
+        pos.length / records.length * 100 + "%";
+
+    // Recent transactions
+
+    const recent = records.slice(-5).reverse();
+
+    document.getElementById("recentTable").innerHTML =
+        recent.map(r => `
+        <tr>
+            <td><strong>${r.documentId}</strong></td>
+            <td>${typeBadge(r.type)}</td>
+            <td>${r.vendor}</td>
+            <td>${r.documentDate}</td>
+            <td>${money(r.amount)}</td>
+            <td>${statusBadge(r.status)}</td>
+        </tr>
+    `).join("");
+}
+
+
+// ===========================================
+// 6. REPORT FILTERS
+// ===========================================
+
+let filteredRecords = [];
+let currentPage = 1;
+const pageSize = 10;
+
+function populateVendorFilter() {
+
+    const select = document.getElementById("vendorFilter");
+
+    vendors.forEach(v => {
+        const option = document.createElement("option");
+        option.value = v.name;
+        option.textContent = v.name;
+        select.appendChild(option);
+    });
+}
+
+function applyFilters() {
+
+    const search = document.getElementById("searchInput")
+        .value.toLowerCase();
+
+    const type = document.getElementById("typeFilter").value;
+    const status = document.getElementById("statusFilter").value;
+    const vendor = document.getElementById("vendorFilter").value;
+
+    filteredRecords = records.filter(r => {
+
+        const searchMatch =
+            r.documentId.toLowerCase().includes(search) ||
+            r.vendor.toLowerCase().includes(search) ||
+            r.vendorCode.toLowerCase().includes(search);
+
+        const typeMatch = type === "All" || r.type === type;
+        const statusMatch = status === "All" || r.status === status;
+        const vendorMatch = vendor === "All" || r.vendor === vendor;
+
+        return searchMatch && typeMatch && statusMatch && vendorMatch;
+    });
+
+    currentPage = 1;
+
+    renderReportTable();
+    updateReportAnalytics();
+}
+
+function resetFilters() {
+
+    document.getElementById("searchInput").value = "";
+    document.getElementById("typeFilter").value = "All";
+    document.getElementById("statusFilter").value = "All";
+    document.getElementById("vendorFilter").value = "All";
+
+    applyFilters();
+}
+
+
+// ===========================================
+// 7. REPORT TABLE AND PAGINATION
+// ===========================================
+
+function renderReportTable() {
+
+    const start = (currentPage-1)*pageSize;
+    const end = start+pageSize;
+
+    const pageRecords = filteredRecords.slice(start,end);
+
+    document.getElementById("reportTable").innerHTML =
+        pageRecords.map(r => `
+        <tr>
+            <td>${r.sno}</td>
+            <td><strong>${r.documentId}</strong></td>
+            <td>${typeBadge(r.type)}</td>
+            <td>${r.vendor}</td>
+            <td>${r.vendorCode}</td>
+            <td>${r.documentDate}</td>
+            <td>${r.dueDate}</td>
+            <td>${money(r.amount)}</td>
+            <td>${statusBadge(r.status)}</td>
+        </tr>
+    `).join("") || `
+        <tr>
+            <td colspan="9" style="text-align:center;padding:30px">
+                No matching records found.
+            </td>
+        </tr>
+    `;
+
+    document.getElementById("recordInfo").innerText =
+        filteredRecords.length === 0
+        ? "Showing 0 records"
+        : `Showing ${start+1}-${Math.min(end,filteredRecords.length)}
+           of ${filteredRecords.length} records`;
+
+    renderPagination();
+}
+
+function renderPagination() {
+
+    const totalPages = Math.ceil(filteredRecords.length/pageSize);
+    const container = document.getElementById("pagination");
+
+    container.innerHTML = "";
+
+    if(totalPages <= 1) return;
+
+    const prev = document.createElement("button");
+    prev.innerText = "←";
+    prev.disabled = currentPage === 1;
+    prev.onclick = () => changePage(currentPage-1);
+    container.appendChild(prev);
+
+    for(let i=1;i<=totalPages;i++) {
+
+        const btn = document.createElement("button");
+        btn.innerText = i;
+
+        if(i === currentPage) btn.classList.add("active");
+
+        btn.onclick = () => changePage(i);
+        container.appendChild(btn);
+    }
+
+    const next = document.createElement("button");
+    next.innerText = "→";
+    next.disabled = currentPage === totalPages;
+    next.onclick = () => changePage(currentPage+1);
+    container.appendChild(next);
+}
+
+function changePage(page) {
+
+    const totalPages = Math.ceil(filteredRecords.length/pageSize);
+
+    if(page < 1 || page > totalPages) return;
+
+    currentPage = page;
+    renderReportTable();
+}
+
+
+// ===========================================
+// 8. REPORT ANALYTICS
+// ===========================================
+
+function updateReportAnalytics() {
+
+    const total = filteredRecords.length;
+
+    const sum = filteredRecords.reduce(
+        (a,r) => a+r.amount,0
+    );
+
+    const average = total ? sum/total : 0;
+
+    document.getElementById("filteredCount").innerText = total;
+    document.getElementById("filteredAmount").innerText = money(sum);
+    document.getElementById("averageAmount").innerText = money(average);
+
+    // Document type summary
+
+    const invoiceCount = filteredRecords.filter(
+        r => r.type === "Invoice"
+    ).length;
+
+    const poCount = filteredRecords.filter(
+        r => r.type === "PO"
+    ).length;
+
+    const invoicePercent = total ? invoiceCount/total*100 : 0;
+    const poPercent = total ? poCount/total*100 : 0;
+
+    document.getElementById("typeAnalytics").innerHTML = `
+        <div class="bar-row">
+            <span>Invoices</span>
+            <div class="bar-track">
+                <div class="bar-fill" style="width:${invoicePercent}%"></div>
+            </div>
+            <strong>${invoiceCount}</strong>
+        </div>
+
+        <div class="bar-row">
+            <span>POs</span>
+            <div class="bar-track">
+                <div class="bar-fill"
+                     style="width:${poPercent}%;background:#9870d7"></div>
+            </div>
+            <strong>${poCount}</strong>
+        </div>
+    `;
+
+    // Status summary
+
+    const statuses = ["Paid","Pending","Approved","Rejected","Created"];
+
+    document.getElementById("statusAnalytics").innerHTML =
+        statuses.map(status => {
+
+            const count = filteredRecords.filter(
+                r => r.status === status
+            ).length;
+
+            const dot = status === "Paid" || status === "Approved"
+                ? "dot-green"
+                : status === "Rejected"
+                ? "dot-red"
+                : "dot-orange";
+
+            return `
+                <div class="status-row">
+                    <div class="status-label">
+                        <span class="dot ${dot}"></span>${status}
+                    </div>
+                    <strong>${count}</strong>
+                </div>
+            `;
+        }).join("");
+}
+
+
+// ===========================================
+// 9. EXCEL DOWNLOAD
+// ===========================================
+
+function exportExcel() {
+
+    if(typeof XLSX === "undefined") {
+        alert("Excel export library is unavailable. Check your internet connection.");
+        return;
+    }
+
+    if(filteredRecords.length === 0) {
+        alert("No records available to download.");
+        return;
+    }
+
+    const data = filteredRecords.map(r => ({
+        "S.No":r.sno,
+        "Document ID":r.documentId,
+        "Document Type":r.type,
+        "Vendor Name":r.vendor,
+        "Vendor Code":r.vendorCode,
+        "Document Date":r.documentDate,
+        "Due Date":r.dueDate,
+        "Amount":r.amount,
+        "Status":r.status
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        workbook,worksheet,"Invoice_PO_Reports"
+    );
+
+    XLSX.writeFile(workbook,"Invoice_PO_Report.xlsx");
+}
+
+
+// ===========================================
+// 10. CSV DOWNLOAD
+// ===========================================
+
+function exportCSV() {
+
+    if(filteredRecords.length === 0) {
+        alert("No records available to download.");
+        return;
+    }
+
+    const headers = [
+        "S.No",
+        "Document ID",
+        "Document Type",
+        "Vendor Name",
+        "Vendor Code",
+        "Document Date",
+        "Due Date",
+        "Amount",
+        "Status"
+    ];
+
+    const rows = filteredRecords.map(r => [
+        r.sno,
+        r.documentId,
+        r.type,
+        r.vendor,
+        r.vendorCode,
+        r.documentDate,
+        r.dueDate,
+        r.amount,
+        r.status
+    ]);
+
+    const csv = [headers,...rows]
+        .map(row => row.map(value =>
+            '"' + String(value).replace(/"/g,'""') + '"'
+        ).join(","))
+        .join("\r\n");
+
+    const blob = new Blob(
+        ["\uFEFF"+csv],
+        {type:"text/csv;charset=utf-8;"}
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "Invoice_PO_Report.csv";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+}
+
+</script>
+
+</body>
+</html>
